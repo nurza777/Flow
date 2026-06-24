@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  password    String
+  avatar      String?
+  role        String   @default("developer") // super_admin | tech_lead | developer
+  createdAt   DateTime @default(now())
+  createdById String?
+
+  createdBy   User?  @relation("CreatedBy", fields: [createdById], references: [id])
+  createdUsers User[] @relation("CreatedBy")
+
+  assignedTasks    Task[]          @relation("AssignedTo")
+  createdTasks     Task[]          @relation("TaskCreatedBy")
+  comments         Comment[]
+  projects         ProjectMember[]
+  notifications    Notification[]
+  activityLogs     ActivityLog[]
+  sentMessages     ChatMessage[]   @relation("SentMessages")
+  receivedMessages ChatMessage[]   @relation("ReceivedMessages")
+}
+
+model Project {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  longDesc    String?
+  documents   String?   // JSON: [{name, url, size, type}]
+  color       String    @default("#6366f1")
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  members  ProjectMember[]
+  tasks    Task[]
+  statuses Status[]
+}
+
+model ProjectMember {
+  id        String @id @default(cuid())
+  role      String @default("member")
+  userId    String
+  projectId String
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+}
+
+model Status {
+  id        String @id @default(cuid())
+  name      String
+  color     String @default("#94a3b8")
+  order     Int    @default(0)
+  projectId String
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks   Task[]
+}
+
+model Task {
+  id               String    @id @default(cuid())
+  title            String
+  description      String?
+  aiRecommendation String?
+  priority         String    @default("medium")
+  dueDate          DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  order            Int       @default(0)
+
+  projectId   String
+  statusId    String
+  assigneeId  String?
+  createdById String
+  parentId    String?
+
+  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  status       Status        @relation(fields: [statusId], references: [id])
+  assignee     User?         @relation("AssignedTo", fields: [assigneeId], references: [id])
+  createdBy    User          @relation("TaskCreatedBy", fields: [createdById], references: [id])
+  comments     Comment[]
+  subtasks     Task[]        @relation("SubTasks")
+  parent       Task?         @relation("SubTasks", fields: [parentId], references: [id])
+  labels       TaskLabel[]
+  activityLogs ActivityLog[]
+}
+
+model Label {
+  id    String      @id @default(cuid())
+  name  String
+  color String      @default("#94a3b8")
+  tasks TaskLabel[]
+}
+
+model TaskLabel {
+  taskId  String
+  labelId String
+
+  task  Task  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  label Label @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, labelId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  body      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  taskId    String
+  userId    String
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+}
+
+model ChatMessage {
+  id         String   @id @default(cuid())
+  body       String
+  read       Boolean  @default(false)
+  senderId   String
+  receiverId String
+  createdAt  DateTime @default(now())
+
+  sender   User @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  body      String
+  read      Boolean  @default(false)
+  taskId    String?
+  projectId String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  taskId    String
+  userId    String
+  action    String
+  oldValue  String?
+  newValue  String?
+  createdAt DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
