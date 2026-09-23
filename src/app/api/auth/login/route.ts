@@ -16,6 +16,16 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "Неверный email или пароль" }, { status: 401 });
   }
 
-  await createSession({ id: user.id, email: user.email, name: user.name, role: user.role });
-  return Response.json({ ok: true });
+  const token = await createSession({
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+  });
+
+  return Response.json({
+    ok: true,
+    token,
+    user: { id: user.id, email: user.email, name: user.name, role: user.role },
+  });
 }
