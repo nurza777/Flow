@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { formatDate, isOverdue, PRIORITY_COLORS, PRIORITY_LABELS, ACTION_LABELS } from "@/lib/utils";
+import DateInput from "./DateInput";
 
 interface User {
   id: string;
@@ -270,12 +271,10 @@ export default function TaskDetailModal({
 
               <div>
                 <p className="text-xs font-medium text-slate-400 mb-1.5">Дедлайн</p>
-                <input
-                  type="date"
+                <DateInput
                   value={task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : ""}
-                  onChange={(e) => updateField("dueDate", e.target.value || null)}
-                  className={`w-full px-2.5 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${overdue ? "border-red-300 text-red-600" : "border-slate-300"}`}
-                  suppressHydrationWarning
+                  onChange={(v) => updateField("dueDate", v || null)}
+                  inputClassName={`w-full ${overdue ? "border-red-300 text-red-600" : "border-slate-300"}`}
                 />
               </div>
             </div>

@@ -24,6 +24,14 @@ export function formatDate(date: Date | string | null | undefined): string {
   return `${d.getDate()} ${MONTHS_RU[d.getMonth()]}`;
 }
 
+// YYYY-MM-DD in local time; toISOString() would give yesterday east of UTC around midnight
+export function toDateInputValue(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
 export function isOverdue(date: Date | string | null | undefined): boolean {
   if (!date) return false;
   const due = new Date(date);

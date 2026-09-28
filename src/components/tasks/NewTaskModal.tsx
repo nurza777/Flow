@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import DateInput from "./DateInput";
 
 interface User {
   id: string;
@@ -113,7 +114,7 @@ export default function NewTaskModal({
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1.5">Приоритет</label>
               <select
@@ -144,16 +145,11 @@ export default function NewTaskModal({
                 ))}
               </select>
             </div>
+          </div>
 
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1.5">Дедлайн</label>
-              <input
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                className="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1.5">Дедлайн</label>
+            <DateInput value={dueDate} onChange={setDueDate} inputClassName="w-44 border-slate-300" />
           </div>
 
           <div className="flex gap-3 pt-2">
