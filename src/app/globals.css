@@ -57,6 +57,9 @@ body {
 .dark .text-indigo-700 { color: #a5b4fc !important; }
 .dark .text-indigo-600 { color: #818cf8 !important; }
 .dark .border-indigo-100 { border-color: #3730a3 !important; }
+.dark .notification-dropdown .border-slate-50 { border-color: var(--bg-tertiary) !important; }
+.dark .notification-dropdown .bg-indigo-50\/50 { background-color: rgb(99 102 241 / 0.1) !important; }
+.dark .notification-dropdown .hover\:bg-slate-50:hover { background-color: var(--bg-tertiary) !important; }
 .dark input, .dark textarea, .dark select {
   background-color: var(--bg-tertiary) !important;
   color: var(--text) !important;
