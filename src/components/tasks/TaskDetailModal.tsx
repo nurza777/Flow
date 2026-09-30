@@ -274,7 +274,8 @@ export default function TaskDetailModal({
                 <DateInput
                   value={task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : ""}
                   onChange={(v) => updateField("dueDate", v || null)}
-                  inputClassName={`w-full ${overdue ? "border-red-300 text-red-600" : "border-slate-300"}`}
+                  className="w-full"
+                  inputClassName={`${overdue ? "border-red-300 text-red-600" : "border-slate-300"}`}
                 />
               </div>
             </div>

@@ -7,6 +7,8 @@ interface DateInputProps {
   value: string;
   // Called once per finished choice: blur, Enter, calendar pick or a preset — not on every keystroke
   onChange: (value: string) => void;
+  // Width of the field, e.g. "w-44" or "w-full"
+  className?: string;
   inputClassName?: string;
 }
 
@@ -22,7 +24,7 @@ function isPlausible(value: string) {
   return year >= 2000 && year <= 2100;
 }
 
-export default function DateInput({ value, onChange, inputClassName = "" }: DateInputProps) {
+export default function DateInput({ value, onChange, className = "", inputClassName = "" }: DateInputProps) {
   const [draft, setDraft] = useState(value);
   const [prevValue, setPrevValue] = useState(value);
   if (value !== prevValue) {
@@ -73,6 +75,19 @@ export default function DateInput({ value, onChange, inputClassName = "" }: Date
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // A click on the field itself stays native so the date can be typed; the picker has its own button
+  function openCalendar() {
+    const input = inputRef.current;
+    if (!input) return;
+    typing.current = false;
+    try {
+      input.showPicker();
+    } catch {
+      // No showPicker here (older Safari, cross-origin iframe): fall back to typing
+      input.focus();
+    }
+  }
+
   const presets = [
     { label: "Сегодня", value: daysFromToday(0) },
     { label: "Завтра", value: daysFromToday(1) },
@@ -81,31 +96,36 @@ export default function DateInput({ value, onChange, inputClassName = "" }: Date
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
-      <input
-        ref={inputRef}
-        type="date"
-        value={draft}
-        onChange={(e) => {
-          setDraft(e.target.value);
-          // No keystrokes before the change means it came from the calendar
-          if (!typing.current && isPlausible(e.target.value)) commit(e.target.value);
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") finish(e.currentTarget);
-          else if (e.key !== "Tab" && e.key !== "Escape") typing.current = true;
-        }}
-        onBlur={(e) => finish(e.currentTarget)}
-        onClick={(e) => {
-          typing.current = false;
-          try {
-            e.currentTarget.showPicker?.();
-          } catch {
-            // Not allowed in this context (e.g. cross-origin iframe); the calendar icon still works
-          }
-        }}
-        className={`px-2.5 py-1.5 border rounded-lg text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 ${inputClassName}`}
-        suppressHydrationWarning
-      />
+      <div className={`relative ${className}`}>
+        <input
+          ref={inputRef}
+          type="date"
+          value={draft}
+          onChange={(e) => {
+            setDraft(e.target.value);
+            // No keystrokes before the change means it came from the calendar
+            if (!typing.current && isPlausible(e.target.value)) commit(e.target.value);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") finish(e.currentTarget);
+            else if (e.key !== "Tab" && e.key !== "Escape") typing.current = true;
+          }}
+          onBlur={(e) => finish(e.currentTarget)}
+          className={`w-full pl-2.5 pr-9 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 [&::-webkit-calendar-picker-indicator]:hidden ${inputClassName}`}
+          suppressHydrationWarning
+        />
+        <button
+          type="button"
+          onClick={openCalendar}
+          title="Открыть календарь"
+          aria-label="Открыть календарь"
+          className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 transition-colors"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+          </svg>
+        </button>
+      </div>
       <div className="flex flex-wrap gap-1">
         {presets.map((p) => (
           <button

@@ -149,7 +149,7 @@ export default function NewTaskModal({
 
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1.5">Дедлайн</label>
-            <DateInput value={dueDate} onChange={setDueDate} inputClassName="w-44 border-slate-300" />
+            <DateInput value={dueDate} onChange={setDueDate} className="w-44" inputClassName="border-slate-300" />
           </div>
 
           <div className="flex gap-3 pt-2">
